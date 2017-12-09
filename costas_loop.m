@@ -9,8 +9,8 @@ function est_x = costas_loop(y, alpha)
     f_delta = estimate_frequency_offset(y);
     x_hat = ones(size(y, 1), size(y, 2));
     for i = 1:length(x_hat)
-        x_hat(i) = exp(-j * f_delta) * y(i);
-        error = -real(y(i)) * imag(i);
+        x_hat(i) = exp(-1i * f_delta) * y(i);
+        error = -real(y(i)) * imag(y(i));
         f_delta = alpha * f_delta - (1 - alpha) * error;
     end
     est_x = x_hat;

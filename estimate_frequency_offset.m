@@ -7,4 +7,5 @@ function f_est = estimate_frequency_offset(y)
    plot(fs, Y1);
    [~, I] = max(Y1);
    f_est = fs(I(1)) / 4;
+   disp(f_est);
 end

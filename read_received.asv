@@ -1,0 +1,13 @@
+rx = read_usrp_data_file;
+close all;
+subplot(3, 1, 1);
+plot(abs(rx));
+[corr, lags] = xcorr(known, rx);
+plot(lags, corr)
+[~, I] = max(abs(corr));
+t
+[corr2, lags2] = xcorr(known, rx(I:I + 64000));
+subplot(3, 1, 2);
+plot(lags2, corr2);
+subplot(3,1,3);
+plot(abs(corr(I:I+64000)));
