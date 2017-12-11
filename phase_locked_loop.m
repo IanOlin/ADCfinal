@@ -9,7 +9,7 @@ function y = phase_locked_loop(Ztotal, Kp, Ki, Kd)
 % Ztotal = Zi + Zq; %this is a complex number Zi + iZq
 y = zeros(size(Ztotal)); 
 
-phi = estimate_frequency_offset(Ztotal); 
+phi = 0; 
 oldPhi = 0;
 sumPhi = 0; 
 

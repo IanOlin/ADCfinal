@@ -33,22 +33,17 @@ data_only = rx(start_data: end);
 Kp2 = 1;
 Ki2 = 10;
 Kd2 = 0;
-[p_est, f_est] = estimate_frequency_offset(data_only);
-
-t = linspace(0, length(data_only) / 250000, length(data_only)); 
-corrected = (data_only ./ p_est) .* exp(-1i * f_est .* t');
-locked2 = phase_locked_loop(corrected, Kp2, Ki2, Kd2);
-plot(corrected, '*');
+estimate_frequency_offset(data_only);
+frequency_corrected = 
+locked2 = phase_locked_loop(data_only, Kp2, Ki2, Kd2);
+plot(locked2, '*');
 
 
-% threshold_real = (real(locked) > 0) - (real(locked) <= 0);
-% threshold_imag = (imag(locked) > 0) - (imag(locked) <= 0);
+threshold_real = (real(locked) > 0) - (real(locked) <= 0);
+threshold_imag = (imag(locked) > 0) - (imag(locked) <= 0);
 
-threshold_real = (real(corrected) > 0) - (real(corrected) <= 0);
-threshold_imag = (imag(corrected) > 0) - (imag(corrected) <= 0);
-
-figure;
-hold on;
+figure
+hold on
 plot(threshold_imag)
 plot(threshold_real)
 % plot(x)
