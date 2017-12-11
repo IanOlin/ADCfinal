@@ -13,7 +13,12 @@ x2 = fread(f1,'float32');
 fclose(f1);
 
 t = 0:1/2.5e6:3;
-x3 = .6*square(2*pi*1000*t);
+x3 = .6*square(2*pi*1000*t) + .6*i*square(2*pi*t*500);
+
+
+% fileTx = 'peppers.jpg';            % Image file name
+% fData = imread(fileTx);            % Read image data from file
+% binData = dec2bin(fData(:));
 
 x = [x1;x2;x3.'];
 write_usrp_data_file(x);
