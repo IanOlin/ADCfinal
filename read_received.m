@@ -32,6 +32,6 @@ plot(locked, '*');
 
 threshold_real = (real(locked) > 0) - (real(locked) <= 0);
 threshold_imag = (imag(locked) > 0) - (imag(locked) <= 0);
-figure;
-plot(threshold_real + 1i * threshold_imag, '*');
+
+bit_error
  
