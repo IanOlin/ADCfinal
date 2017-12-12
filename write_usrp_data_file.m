@@ -12,7 +12,7 @@ function  write_usrp_data_file( x )
     tmp(1:2:end) = real(x);
     tmp(2:2:end) = imag(x);
 
-    f1 = fopen('tx1210.dat', 'w');
+    f1 = fopen('tx1212.dat', 'w');
     fwrite(f1, tmp, 'float32');
     fclose(f1);
 
