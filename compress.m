@@ -68,36 +68,82 @@ row_bound = max([red_nz(1),green_nz(1),blue_nz(1)]);
 col_bound = max([red_nz(2),green_nz(2),blue_nz(2)]);
 
 % Resize matrices to contain only useful data
-comp_r = comp_r(1:row_bound,:);
-comp_r = comp_r(:,1:col_bound);
-comp_g = comp_g(1:row_bound,:);
-comp_g = comp_g(:,1:col_bound);
-comp_b = comp_b(1:row_bound,:);
-comp_b = comp_b(:,1:col_bound)
+comp_r = comp_r(1:row_bound,1:col_bound);
+comp_g = comp_g(1:row_bound,1:col_bound);
+comp_b = comp_b(1:row_bound,1:col_bound);
 
-tmp = zeros(3*numel(comp_r),1);
-tmp(1:3:end) = comp_r;
-tmp(2:3:end) = comp_g;
-tmp(3:3:end) = comp_b;
-
+% Calculate compression rate
 comp_rate = 100*numel(comp_r)/numel(red);
 
-im=zeros(size(red,1),size(red,2),3);
-comp_r = padarray(comp_r,size(red));
-comp_g = padarray(comp_g,size(green));
-comp_b = padarray(comp_b,size(blue));
-im(:,:,1)=comp_r;
-im(:,:,2)=comp_g;
-im(:,:,3)=comp_b;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Data has been compressed
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-im=uint8(im);
+% Convert doubles to binary strings
+q = quantizer('double');
+enc_r = num2bin(q, comp_r);
+enc_g = num2bin(q, comp_g);
+enc_b = num2bin(q, comp_b);
 
-figure('Name','Output image');
-imshow(im);
+% Set forloop bounds
+indices = size(enc_r);
 
+% Loop to convert binary to complex symbols in 3 matrices
+spot = 0;
+for j = 1:2:indices(1)
+    for k = 1:2:indices(2)
+        num_r = enc_r(j,k:k+1);
+        num_g = enc_g(j,k:k+1);
+        num_b = enc_b(j,k:k+1);
+        spot = spot+1;
+        if strcmp(num_r,'11')
+            encmat_r(spot) = (1+1i);
+        elseif strcmp(num_r,'10')
+            encmat_r(spot) = (1-1i);
+        elseif strcmp(num_r,'01')
+            encmat_r(spot) = (-1+1i);
+        elseif strcmp(num_r,'00')
+            encmat_r(spot) = (-1-1i);
+        end
+        if strcmp(num_g,'11')
+            encmat_g(spot) = (1+1i);
+        elseif strcmp(num_g,'10')
+            encmat_g(spot) = (1-1i);
+        elseif strcmp(num_g,'01')
+            encmat_g(spot) = (-1+1i);
+        elseif strcmp(num_g,'00')
+            encmat_g(spot) = (-1-1i);
+        end
+        if strcmp(num_b,'11')
+            encmat_b(spot) = (1+1i);
+        elseif strcmp(num_b,'10')
+            encmat_b(spot) = (1-1i);
+        elseif strcmp(num_b,'01')
+            encmat_b(spot) = (-1+1i);
+        elseif strcmp(num_b,'00')
+            encmat_b(spot) = (-1-1i);
+        end
+    end
+end
+
+% Compile symbols as rgb array
+tmp = zeros(6*numel(encmat_r),1);
+tmp(1:6:end) = real(encmat_r);
+tmp(2:6:end) = imag(encmat_r);
+tmp(3:6:end) = real(encmat_g);
+tmp(4:6:end) = imag(encmat_g);
+tmp(5:6:end) = real(encmat_b);
+tmp(6:6:end) = imag(encmat_b);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Data has been encoded as binary and compiled to an array
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Write transmission file
 f1 = fopen(outfile, 'w');
 fwrite(f1, tmp, 'float32');
 fclose(f1);
 
+return
 
 end
