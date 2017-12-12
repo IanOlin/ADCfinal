@@ -8,9 +8,11 @@
 
 x1 = wgn(10000, 1, 1);
 
-f1 = fopen('known1212.dat', 'r');
-x2 = fread(f1,'float32');
-fclose(f1);
+% f1 = fopen('known1212.dat', 'r');
+% x2 = fread(f1,'float32');
+% fclose(f1);
+
+x2 = read_usrp_data_file;
 
 % t = 0:1/2.5e6:3;
 % x3 = .6*square(2*pi*1000*t) + .6*i*square(2*pi*t*500);
