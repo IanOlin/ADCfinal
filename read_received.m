@@ -1,29 +1,38 @@
+%% Transmission / Reception parmaeters
+sampling_rate = 250000;  % samples/second
+frequency = 2497000000; % Hz
+pulse_length = 10;
 %% Read data files
-f1 = fopen('known.dat', 'r');
+% known.dat is the file containing known white noise. This will be used to
+% aid us in finding the beginning of our data vector.
+f1 = fopen('known1212.dat', 'r');
 tmp = fread(f1,'float32');
 fclose(f1);
 known = tmp(1:2:end)+1i*tmp(2:2:end);
 plot(tmp(2:2:end))
 
-f1 = fopen('rx1210.dat', 'r');
+% The received signal. Contains a section of random white noise, a section
+% of known white noise, and the data vector.
+f1 = fopen('rx_image.dat', 'r');
 tmp = fread(f1,'float32');
 fclose(f1);
 rx = tmp(1:2:end)+1i*tmp(2:2:end);
 
 %% Find start of data using the known noise
 close all;
-% subplot(3, 1, 1);
-% plot(abs(rx));
+% cross correlate the received data with the known noise to find the
+% midpoint of the known noise in the received vector.
+
 [corr, lags] = xcorr(rx, known);
-% plot(lags, corr)
+%find the maximum amplitude in the fft.
 [~, I] = max(abs(corr));
 t = lags(I);
 
 % figure; hold on;
-start_data = (t + 10 * (length(known) / 2));
-data_only = rx(start_data: start_data + 50000);
-% subplot(2,1,1); plot(real(data_only));
-% subplot(2,1,2); plot(imag(data_only));
+start_data = (t + (length(known) / 2));
+
+rx = rx - mean(rx);
+data_only = rx(start_data: end); % Use portion of the data
 
 %% Correct for offsets
 % 10, 15, 0
