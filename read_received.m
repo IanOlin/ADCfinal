@@ -1,7 +1,9 @@
 %% Transmission / Reception parmaeters
-sampling_rate = 250000;  % samples/second
+clear all
+sampling_rate = 500000;  % samples/second
 frequency = 2497000000; % Hz
 pulse_length = 10;
+upsample = 100;
 %% Read data files
 % known.dat is the file containing known white noise. This will be used to
 % aid us in finding the beginning of our data vector.
@@ -13,7 +15,7 @@ plot(tmp(2:2:end))
 
 % The received signal. Contains a section of random white noise, a section
 % of known white noise, and the data vector.
-f1 = fopen('rx_image.dat', 'r');
+f1 = fopen('rx12122.dat', 'r');
 tmp = fread(f1,'float32');
 fclose(f1);
 rx = tmp(1:2:end)+1i*tmp(2:2:end);
@@ -27,12 +29,16 @@ close all;
 %find the maximum amplitude in the fft.
 [~, I] = max(abs(corr));
 t = lags(I);
-
+%% 
 % figure; hold on;
-start_data = (t + (length(known) / 2));
+% start_data = abs(t + (length(known) / 2));
+start_data = 917208 + 10000 + 50;
+end_data = 1.896e6;
 
-rx = rx - mean(rx);
-data_only = rx(start_data: end); % Use portion of the data
+% data_only = rx(start_data: end_data); % Use portion of the data
+plot(real(rx))
+pause
+data_only = rx(1e6:4e6);
 
 %% Correct for offsets
 % 10, 15, 0
@@ -42,22 +48,32 @@ data_only = rx(start_data: end); % Use portion of the data
 % locked = phase_locked_loop(data_only, Kp, Ki, Kd);
 % plot(locked, '*');
 
-Kp2 = 1;
-Ki2 = 10;
+Kp2 = 10;
+Ki2 = 100;
 Kd2 = 0;
 
 corrected = zeros(length(data_only),1);
 
-chunk_size = 10;
+chunk_size = 5e4;
 num_chunks = floor(length(data_only) / chunk_size);
+drift = zeros(num_chunks, 1);
 for i = 1:num_chunks
     start_index = (i - 1) * chunk_size + 1;
     end_index = (i * chunk_size);
     data_chunk = data_only(start_index: end_index);
-    [p_est, f_est] = estimate_frequency_offset(data_chunk);
-    corrected(start_index: end_index) =  (data_only(start_index: end_index) .* exp(-1i * f_est .*t')) ./p_est;
+    [p_est, f_est, freq, amp] = estimate_frequency_offset(data_chunk);
+%     if mod(i, 100) == 0
+%         plot(freq, amp)
+%         pause
+%     end
+    drift(i) = f_est;
+    corrected(start_index: end_index) =  (data_only(start_index: end_index) .* exp(-1i * f_est .*[0:chunk_size-1]' - 1i * p_est));
+    plot(corrected(start_index:end_index), '*')
+    pause
 end
 
+corrected = phase_locked_loop(corrected, Kp, Ki, Kd);
+%%
 averaged = zeros(length(data_only),1);
 window = 2000;
 num_windows = floor(length(data_only) / window);
@@ -74,7 +90,12 @@ for i = 1:num_windows
 end
     
 % corrected = corrected .* exp(pi/4);
-plot(corrected, '*');
+% figure
+% plot(corrected , '*');
+% figure;
+% plot(real(corrected));
+% hold on;
+% plot(imag(corrected));
 
 
 
@@ -91,22 +112,23 @@ plot(corrected, '*');
 
 % threshold_real = (real(locked) > 0) - (real(locked) <= 0);
 % threshold_imag = (imag(locked) > 0) - (imag(locked) <= 0);
-% 
-% threshold_real = (real(corrected) > 0) - (real(corrected) <= 0);
-% threshold_imag = (imag(corrected) > 0) - (imag(corrected) <= 0);
 
-% figure;
-% plot(threshold_imag, '*')
-% figure;
-% plot(threshold_real, 'o')
-
-threshold_real = (real(averaged) > 0) - (real(averaged) <= 0);
-threshold_imag = (imag(averaged) > 0) - (imag(averaged) <= 0);
+d_corrected = decimate(corrected, 2 * upsample);
+threshold_real = (real(d_corrected) > 0) - (real(d_corrected) <= 0);
+threshold_imag = (imag(d_corrected) > 0) - (imag(d_corrected) <= 0);
 
 figure;
 plot(threshold_imag, '*')
 figure;
 plot(threshold_real, 'o')
+% 
+% threshold_real = (real(averaged) > 0) - (real(averaged) <= 0);
+% threshold_imag = (imag(averaged) > 0) - (imag(averaged) <= 0);
+
+% figure;
+% plot(threshold_imag, '*')
+% figure;
+% plot(threshold_real, 'o')
 % plot(x)
         
  
