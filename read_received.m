@@ -1,5 +1,4 @@
 %% Transmission / Reception parmaeters
-clear all
 sampling_rate = 500000;  % samples/second
 frequency = 2497000000; % Hz
 pulse_length = 10;
@@ -38,7 +37,9 @@ end_data = 1.896e6;
 % data_only = rx(start_data: end_data); % Use portion of the data
 plot(real(rx))
 pause
-data_only = rx(1e6:4e6);
+
+% data_only = rx(1e6:4e6);
+data_only = rx(7e5:5.65e6);
 
 %% Correct for offsets
 % 10, 15, 0
@@ -68,26 +69,25 @@ for i = 1:num_chunks
 %     end
     drift(i) = f_est;
     corrected(start_index: end_index) =  (data_only(start_index: end_index) .* exp(-1i * f_est .*[0:chunk_size-1]' - 1i * p_est));
-    plot(corrected(start_index:end_index), '*')
-    pause
-end
 
-corrected = phase_locked_loop(corrected, Kp, Ki, Kd);
+%     plot(corrected(start_index:end_index), '*')
+%     pause
+end
 %%
-averaged = zeros(length(data_only),1);
-window = 2000;
-num_windows = floor(length(data_only) / window);
+% averaged = zeros(length(data_only),1);
+% window = 2000;
+% num_windows = floor(length(data_only) / window);
 % for i = 1:num_windows
 %     start_index = (i - 1) * window + 1;
 %     end_index = (i * window);
 %     averaged(start_index:end_index) = ones(window, 1) * mean(corrected(start_index:end_index));
 % end
 
-for i = 1:num_windows
-    start_index = (i - 1) * window + 1;
-    end_index = (i * window);
-    averaged(start_index:end_index) = ones(window, 1) * mean(corrected(start_index:end_index));
-end
+% for i = 1:num_windows
+%     start_index = (i - 1) * window + 1;
+%     end_index = (i * window);
+%     averaged(start_index:end_index) = ones(window, 1) * mean(corrected(start_index:end_index));
+% end
     
 % corrected = corrected .* exp(pi/4);
 % figure
@@ -113,14 +113,14 @@ end
 % threshold_real = (real(locked) > 0) - (real(locked) <= 0);
 % threshold_imag = (imag(locked) > 0) - (imag(locked) <= 0);
 
-d_corrected = decimate(corrected, 2 * upsample);
-threshold_real = (real(d_corrected) > 0) - (real(d_corrected) <= 0);
-threshold_imag = (imag(d_corrected) > 0) - (imag(d_corrected) <= 0);
+% d_corrected = downsample(corrected, 2 * upsample);
+threshold_real = (real(corrected) > 0) - (real(corrected) <= 0);
+threshold_imag = (imag(corrected) > 0) - (imag(corrected) <= 0);
 
-figure;
-plot(threshold_imag, '*')
-figure;
-plot(threshold_real, 'o')
+% figure;
+% plot(threshold_imag, '*')
+% figure;
+% plot(threshold_real, 'o')
 % 
 % threshold_real = (real(averaged) > 0) - (real(averaged) <= 0);
 % threshold_imag = (imag(averaged) > 0) - (imag(averaged) <= 0);
