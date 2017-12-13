@@ -1,4 +1,4 @@
-function comp_rate = compress(infile,resolution,outfile)
+function res = compress(infile,resolution,outfile)
 % This code borrows heavily from:
 %*****************************************************************
 % Luigi Rosa
@@ -9,6 +9,7 @@ function comp_rate = compress(infile,resolution,outfile)
 % mobile +39 340 3463208 
 % http://utenti.lycos.it/matlab
 %*****************************************************************
+% Output is [comp_rate, comp_rows, comp_cols]
 
 if (exist(infile)==2)
     pic = imread(infile);
@@ -21,9 +22,9 @@ end
 
 % Extract rgb values by color
 % Set to double rather than uint8 for calculations
-red = double(pic(:,:,1));
-green = double(pic(:,:,2));
-blue = double(pic(:,:,3));
+red = single(pic(:,:,1));
+green = single(pic(:,:,2));
+blue = single(pic(:,:,3));
 
 % Take dct of color vectors
 red_dct = dct2(red);
@@ -72,15 +73,22 @@ comp_r = comp_r(1:row_bound,1:col_bound);
 comp_g = comp_g(1:row_bound,1:col_bound);
 comp_b = comp_b(1:row_bound,1:col_bound);
 
-% Calculate compression rate
+% Calculate compression data
 comp_rate = 100*numel(comp_r)/numel(red);
+disp(size(pic));
+comp_data = [comp_rate,row_bound,col_bound];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data has been compressed
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Experimental%%%%%%%<<<<<<<<<<<
+comp_r = single(comp_r);
+comp_g = single(comp_g);
+comp_b = single(comp_b);
+
 % Convert doubles to binary strings
-q = quantizer('double');
+q = quantizer('single');
 enc_r = num2bin(q, comp_r);
 enc_g = num2bin(q, comp_g);
 enc_b = num2bin(q, comp_b);
@@ -90,7 +98,7 @@ indices = size(enc_r);
 
 % Loop to convert binary to complex symbols in 3 matrices
 spot = 0;
-for j = 1:2:indices(1)
+for j = 1:indices(1)
     for k = 1:2:indices(2)
         num_r = enc_r(j,k:k+1);
         num_g = enc_g(j,k:k+1);
@@ -143,6 +151,8 @@ tmp(6:6:end) = imag(encmat_b);
 f1 = fopen(outfile, 'w');
 fwrite(f1, tmp, 'float32');
 fclose(f1);
+
+res = comp_data;
 
 return
 
