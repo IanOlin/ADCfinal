@@ -37,6 +37,7 @@ end_data = 1.896e6;
 % data_only = rx(start_data: end_data); % Use portion of the data
 plot(real(rx))
 pause
+
 % data_only = rx(1e6:4e6);
 data_only = rx(7e5:5.65e6);
 
@@ -48,8 +49,8 @@ data_only = rx(7e5:5.65e6);
 % locked = phase_locked_loop(data_only, Kp, Ki, Kd);
 % plot(locked, '*');
 
-Kp2 = 1;
-Ki2 = 10;
+Kp2 = 10;
+Ki2 = 100;
 Kd2 = 0;
 
 corrected = zeros(length(data_only),1);
@@ -68,6 +69,7 @@ for i = 1:num_chunks
 %     end
     drift(i) = f_est;
     corrected(start_index: end_index) =  (data_only(start_index: end_index) .* exp(-1i * f_est .*[0:chunk_size-1]' - 1i * p_est));
+
 %     plot(corrected(start_index:end_index), '*')
 %     pause
 end
