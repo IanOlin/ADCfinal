@@ -13,6 +13,7 @@ phi = 0;
 oldPhi = 0;
 sumPhi = 0; 
 
+errors = zeros(size(Ztotal));
 for k = 1:length(Ztotal) 
     y(k) = Ztotal(k)*exp(-1i*phi); 
 
@@ -30,6 +31,7 @@ for k = 1:length(Ztotal)
     phi = Kp*phi + Ki*(sumPhi) + Kd*(phi - oldPhi); 
     
     oldPhi = phi; 
+    errors(k) = phi;
 end
 
 % bits = Ztotal.*exp(1i*phi); 

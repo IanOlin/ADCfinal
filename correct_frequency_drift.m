@@ -12,7 +12,7 @@ function corrected = correct_frequency_drift(chunk_size, data)
         [p_est, f_est, ~, ~] = estimate_frequency_offset(chunk);
         % Below is testing the option of not multiplying p_est by 1i. Not
         % sure if it's better.
-%         corrected(start_index:end_index) = chunk .* exp(-1i * f_est .* (0:chunk_size - 1)' - 1i * p_est);
-        corrected(start_index:end_index) = chunk .* exp(-1i * f_est .* (0:chunk_size - 1)') * exp(-p_est);
+        corrected(start_index:end_index) = chunk .* exp(-1i * f_est .* (0:chunk_size - 1)' - 1i * p_est);
+%         corrected(start_index:end_index) = chunk .* exp(-1i * f_est .* (0:chunk_size - 1)') * exp(-p_est);
     end   
 end
