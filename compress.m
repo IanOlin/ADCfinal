@@ -134,14 +134,24 @@ for j = 1:indices(1)
     end
 end
 
+% Upsample data and convolve to make pulses
+pulse_size = 100;
+pulse = ones(1,pulse_size);
+repulse_r = conv(pulse, upsample(real(encmat_r),pulse_size));
+impulse_r = conv(pulse, upsample(imag(encmat_r),pulse_size));
+repulse_g = conv(pulse, upsample(real(encmat_g),pulse_size));
+impulse_g = conv(pulse, upsample(imag(encmat_g),pulse_size));
+repulse_b = conv(pulse, upsample(real(encmat_b),pulse_size));
+impulse_b = conv(pulse, upsample(imag(encmat_b),pulse_size));
+
 % Compile symbols as rgb array
-tmp = zeros(6*numel(encmat_r),1);
-tmp(1:6:end) = real(encmat_r);
-tmp(2:6:end) = imag(encmat_r);
-tmp(3:6:end) = real(encmat_g);
-tmp(4:6:end) = imag(encmat_g);
-tmp(5:6:end) = real(encmat_b);
-tmp(6:6:end) = imag(encmat_b);
+tmp = zeros(6*numel(repulse_r),1);
+tmp(1:6:end) = repulse_r;
+tmp(2:6:end) = impulse_r;
+tmp(3:6:end) = repulse_g;
+tmp(4:6:end) = impulse_g;
+tmp(5:6:end) = repulse_b;
+tmp(6:6:end) = impulse_b;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Data has been encoded as binary and compiled to an array
