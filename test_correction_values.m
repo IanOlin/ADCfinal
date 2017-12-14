@@ -24,8 +24,8 @@ corrected = correct_frequency_drift(1e4, data);
 % could get with this data
 [looped, errors] = phase_locked_loop(corrected, 30, 10, 0);
 figure;
-clf; subplot(1, 2, 1); plot(corrected, '.'); 
+clf; subplot(1, 2, 1); plot(downsample(corrected(50:end), 100), '.'); 
 title('Frequency corrected');
 subplot(1, 2, 2); 
-plot(looped, '.');
+plot(downsample(looped(50:end), 100), '.');
 title('Phase locked loop');
