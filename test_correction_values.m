@@ -1,3 +1,5 @@
+close all
+
 rx = read_usrp_data_file('rx12122.dat');
 data = rx(1e6:5e6);
 
@@ -27,5 +29,5 @@ figure;
 clf; subplot(1, 2, 1); plot(downsample(corrected(50:end), 100), '.'); 
 title('Frequency corrected');
 subplot(1, 2, 2); 
-plot(downsample(looped(50:end), 100), '.');
+plot(downsample(looped(50:end), 100),'.');
 title('Phase locked loop');
