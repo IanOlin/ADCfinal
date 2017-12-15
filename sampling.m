@@ -1,17 +1,18 @@
 function sampled = sampling(values)
-sampled = zeros(floor(length(values)/100),1);
-for i = 1:100:length(values)-100
+pulse_width = 50;
+confidence = .9;
+sampled = zeros(floor(length(values)/pulse_width),1);
+for i = 1:pulse_width:length(values)-pulse_width
     value = 0;
-    for j = 1:1:99
+    for j = 1:1:(pulse_width-1)
         value = value + values(i+j);
     end
-    if value > 90
-        sampled( (i-1)/100 +1) = 1;
-    elseif value < -90
-        sampled( (i-1)/100 +1) = -1;
-        % Add a threshold value, with a failure in confidence go to 0
+    if value > confidence*pulse_width
+        sampled( (i-1)/pulse_width +1) = 1;
+    elseif value < -1 * confidence*pulse_width
+        sampled( (i-1)/pulse_width +1) = -1;
     else
-        sampled( (i-1)/100 +1) = 0;
+        sampled( (i-1)/pulse_width +1) = 0;
     end
 end
 

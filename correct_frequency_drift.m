@@ -3,11 +3,11 @@ function corrected = correct_frequency_drift(chunk_size, data)
     % signal. 
     % chunk_size: the number of data points to correct for at a time.
     % data: A data vector of complex values
-    corrected = zeros(size(data));
     chunk = data(1:chunk_size);
     [p_est, f_est, ~, ~] = estimate_frequency_offset(chunk);
     corrected = data .* exp(-1i * f_est .* [0:length(data)-1]' - 1i * p_est);
     
+%     corrected = zeros(size(data));
 %     num_chunks = floor(length(data) / chunk_size);
 %     for i = 1:num_chunks
 %         start_index = (i - 1) * chunk_size + 1;
