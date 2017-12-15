@@ -135,7 +135,7 @@ for j = 1:indices(1)
 end
 
 % Upsample data and convolve to make pulses
-pulse_size = 100;
+pulse_size = 15;
 pulse = ones(1,pulse_size);
 repulse_r = conv(pulse, upsample(real(encmat_r),pulse_size));
 impulse_r = conv(pulse, upsample(imag(encmat_r),pulse_size));
@@ -143,6 +143,19 @@ repulse_g = conv(pulse, upsample(real(encmat_g),pulse_size));
 impulse_g = conv(pulse, upsample(imag(encmat_g),pulse_size));
 repulse_b = conv(pulse, upsample(real(encmat_b),pulse_size));
 impulse_b = conv(pulse, upsample(imag(encmat_b),pulse_size));
+
+% Drop zeros caused by convolution
+repulse_r(repulse_r==0) = [];
+impulse_r(impulse_r==0) = [];
+repulse_g(repulse_g==0) = [];
+impulse_g(impulse_g==0) = [];
+repulse_b(repulse_b==0) = [];
+impulse_b(impulse_b==0) = [];
+
+% Create header and footer signals
+headfoot = ones(30,1);
+headfoot = 2*upsample(headfoot,3)-1;
+headfoot = conv(pulse, upsample(headfoot,pulse_size));
 
 % Compile symbols as rgb array
 tmp = zeros(6*numel(repulse_r),1);
